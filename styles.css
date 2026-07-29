@@ -721,23 +721,50 @@ body {
 .request-user {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap; /* S'aligne sur une ligne tant que l'espace le permet */
+}
+
+.request-user-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-shrink: 0;
 }
 
 .user-avatar { font-size: 2.5rem; }
 
-.request-tag {
-  display: inline-block;
-  font-size: 0.95rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
-  font-weight: 700;
-  margin-left: 0.5rem;
+.user-meta {
+  font-size: 1.15rem;
+  color: var(--text-dark);
 }
 
-.tag-bricolage { background-color: #feefc3; color: #b45309; }
-.tag-ecrivain { background-color: #e0e7ff; color: #3730a3; }
+.request-tag {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap; /* Empêche le retour à la ligne du texte de la catégorie */
+  font-size: 1.05rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  border: 1.5px solid transparent;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.tag-bricolage {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.tag-ecrivain {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  border-color: #c7d2fe;
+}
 
 .request-audio-preview {
   font-size: 1.15rem;
