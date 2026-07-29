@@ -62,12 +62,14 @@ body {
   background-color: #ffffff;
   border-bottom: 3px solid #e2e8f0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  gap: 0.75rem;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -79,6 +81,11 @@ body {
   font-size: 2rem;
   color: var(--color-primary);
   font-weight: 800;
+}
+
+.mode-toggle-container {
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .mode-toggle-btn {
@@ -93,11 +100,39 @@ body {
   align-items: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
+  white-space: normal;
+  text-align: left;
 }
 
 .mode-toggle-btn:hover {
   background-color: #e2e8f0;
   border-color: #94a3b8;
+}
+
+/* Responsivité Écrans Mobiles */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .logo-icon {
+    font-size: 1.8rem;
+  }
+
+  .logo-title {
+    font-size: 1.35rem;
+  }
+
+  .mode-toggle-btn {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    border-radius: 12px;
+  }
+
+  .mode-toggle-btn #mode-icon {
+    font-size: 1.2rem;
+  }
 }
 
 /* Hero Section */
