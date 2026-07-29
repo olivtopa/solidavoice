@@ -49,7 +49,7 @@ function toggleUserMode() {
     benView.classList.add('active');
     label.textContent = "Passer au Mode Aidant";
     icon.textContent = "🤝";
-    speakText("Bienvenue sur votre écran principal. Choisissez une option avec les gros boutons.");
+    speakText("Bienvenue sur votre écran principal. Appuyez sur un gros bouton pour choisir votre option.");
   }
 }
 
