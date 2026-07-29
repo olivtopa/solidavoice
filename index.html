@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SolidaVoice - L'entraide vocale & accessible</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Tesseract.js pour l'OCR côté client -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+
+  <!-- Header & Mode Switcher -->
+  <header class="app-header">
+    <div class="logo-container">
+      <span class="logo-icon" aria-hidden="true">🎙️</span>
+      <h1 class="logo-title">Solida<strong>Voice</strong></h1>
+    </div>
+    <div class="mode-toggle-container">
+      <button id="toggle-mode-btn" class="mode-toggle-btn" onclick="toggleUserMode()">
+        <span id="mode-icon">🤝</span>
+        <span id="mode-label">Passer au Mode Aidant</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- VUE BÉNÉFICIAIRE (MODE FACILE) -->
+  <main id="view-beneficiary" class="view-section active">
+    <section class="accessible-hero">
+      <h2 class="welcome-text">Bonjour ! De quoi avez-vous besoin aujourd'hui ?</h2>
+      <p class="subtitle-text">Appuyez sur un gros bouton ou écoutez les instructions.</p>
+    </section>
+
+    <!-- Grille des 3 Modules Cœur -->
+    <div class="grid-easy-mode">
+      
+      <!-- Module 1: La Voix du Voisin -->
+      <button class="card-btn card-voisin" onclick="openModule('voisin')">
+        <div class="card-icon-wrapper">
+          <span class="card-icon">🗣️</span>
+        </div>
+        <div class="card-content">
+          <span class="card-title">Demander de l'aide</span>
+          <span class="card-desc">Parlez directement à vos voisins</span>
+        </div>
+      </button>
+
+      <!-- Module 2: Le Fil d'À Côté -->
+      <button class="card-btn card-gazette" onclick="openModule('gazette')">
+        <div class="card-icon-wrapper">
+          <span class="card-icon">📻</span>
+        </div>
+        <div class="card-content">
+          <span class="card-title">Écouter la Gazette</span>
+          <span class="card-desc">Messages vocaux du quartier & de la famille</span>
+        </div>
+      </button>
+
+      <!-- Module 3: Décodeur Facile -->
+      <button class="card-btn card-decodeur" onclick="openModule('decodeur')">
+        <div class="card-icon-wrapper">
+          <span class="card-icon">📄</span>
+        </div>
+        <div class="card-content">
+          <span class="card-title">Lire un Courrier</span>
+          <span class="card-desc">Prenez une photo, l'IA vous l'explique simplement</span>
+        </div>
+      </button>
+
+    </div>
+
+    <!-- Bouton d'Urgence Sociale Vocale -->
+    <div class="sos-container">
+      <button class="sos-btn" onclick="triggerSosAudio()">
+        <span class="sos-icon">🆘</span>
+        <span class="sos-text">Besoin d'un appel rassurant</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- MODAL / INTERFACE INTERACTIVE MODULE DÉCODEUR FACILE -->
+  <div id="modal-decodeur" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeModule('decodeur')" aria-label="Fermer">✕</button>
+      
+      <div class="modal-header-section">
+        <span class="modal-header-icon">📄</span>
+        <h2>Décodeur Facile de Courriers</h2>
+      </div>
+
+      <div class="modal-body">
+        <p class="instruction-falc">Prenez une photo bien nette de votre courrier ou facture.</p>
+
+        <!-- Zone d'action Photo / Caméra -->
+        <div class="capture-controls">
+          <label for="camera-file-input" class="action-btn camera-btn">
+            <span class="btn-icon">📷</span>
+            <span>Prendre une Photo</span>
+          </label>
+          <input type="file" id="camera-file-input" accept="image/*" capture="environment" style="display: none;" onchange="handleImageSelected(event)">
+
+          <button class="action-btn demo-doc-btn" onclick="loadDemoDocument()">
+            <span class="btn-icon">📑</span>
+            <span>Utiliser une facture de démonstration</span>
+          </button>
+        </div>
+
+        <!-- Aperçu de l'image -->
+        <div id="image-preview-container" class="image-preview-container hidden">
+          <img id="scanned-image" src="" alt="Aperçu du courrier scanné">
+          <div id="ocr-loader" class="ocr-loader hidden">
+            <div class="spinner"></div>
+            <p id="ocr-status-text">Lecture optique et analyse FALC en cours...</p>
+          </div>
+        </div>
+
+        <!-- Résultat FALC et Vocalisation -->
+        <div id="falc-result-container" class="falc-result-container hidden">
+          <div class="falc-badge">✨ Résumé en langage Facile à Lire et à Comprendre (FALC)</div>
+          
+          <div class="falc-box">
+            <h3 id="falc-title">Titre du document</h3>
+            
+            <div class="falc-section">
+              <span class="falc-label">🏢 De la part de :</span>
+              <p id="falc-sender" class="falc-text-bold">-</p>
+            </div>
+
+            <div class="falc-section">
+              <span class="falc-label">📌 De quoi s'agit-il ?</span>
+              <p id="falc-summary" class="falc-text-main">-</p>
+            </div>
+
+            <div class="falc-section alert-box">
+              <span class="falc-label">⚡ Ce que vous devez faire :</span>
+              <p id="falc-action" class="falc-text-action">-</p>
+            </div>
+
+            <div class="falc-key-data">
+              <div class="key-item">
+                <span class="key-label">📅 Date limite :</span>
+                <span id="falc-date" class="key-val">-</span>
+              </div>
+              <div class="key-item">
+                <span class="key-label">💶 Montant :</span>
+                <span id="falc-amount" class="key-val">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panneau Contrôle Vocal Synthèse -->
+          <div class="tts-player">
+            <button id="tts-play-btn" class="tts-ctrl-btn play" onclick="speakFalcSummary()">
+              <span class="tts-icon">🔊</span>
+              <span>Écouter l'explication vocale</span>
+            </button>
+            <button id="tts-stop-btn" class="tts-ctrl-btn stop hidden" onclick="stopFalcSummary()">
+              <span class="tts-icon">⏹️</span>
+              <span>Arrêter la voix</span>
+            </button>
+          </div>
+
+          <!-- Option d'escalade Humaine / Écrivain Public -->
+          <div class="escalation-box">
+            <p>Ce document est trop compliqué ou vous avez un doute ?</p>
+            <button class="escalate-btn" onclick="requestPublicWriterHelp()">
+              <span class="btn-icon">🙋‍♀️</span>
+              <span>Demander l'aide d'un bénévole Écrivain Public</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MODULE LA VOIX DU VOISIN -->
+  <div id="modal-voisin" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeModule('voisin')" aria-label="Fermer">✕</button>
+      
+      <div class="modal-header-section">
+        <span class="modal-header-icon">🗣️</span>
+        <h2>La Voix du Voisin</h2>
+      </div>
+
+      <div class="modal-body">
+        <p class="instruction-falc">Appuyez sur le micro et expliquez ce dont vous avez besoin.</p>
+        
+        <div class="voice-rec-container">
+          <button id="mic-record-btn" class="mic-giant-btn" onclick="toggleVoiceRecording()">
+            <span id="mic-icon" class="mic-icon">🎙️</span>
+            <span id="mic-status" class="mic-status">Toucher pour Parler</span>
+          </button>
+        </div>
+
+        <div id="voice-transcript-box" class="voice-transcript-box hidden">
+          <p class="transcript-label">Votre message dicté :</p>
+          <p id="transcript-text" class="transcript-text">"..."</p>
+          <div class="intent-tag" id="intent-tag">Catégorie détectée : Bricolage & Service</div>
+
+          <button class="action-btn send-alert-btn" onclick="confirmSendHelpRequest()">
+            <span>🚀 Envoyer la demande aux voisins du quartier</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MODULE LE FIL D'À CÔTÉ -->
+  <div id="modal-gazette" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeModule('gazette')" aria-label="Fermer">✕</button>
+      
+      <div class="modal-header-section">
+        <span class="modal-header-icon">📻</span>
+        <h2>La Gazette Vocale du Quartier</h2>
+      </div>
+
+      <div class="modal-body">
+        <div class="gazette-player-card">
+          <div class="gazette-avatar">👵🏻</div>
+          <div class="gazette-info">
+            <h3 id="gazette-title">Un petit mot de Marie (Voisine du 3ème)</h3>
+            <p id="gazette-time">Il y a 30 minutes</p>
+          </div>
+          <button id="gazette-play-btn" class="gazette-play-giant" onclick="playGazetteAudio()">
+            <span id="gazette-play-icon">▶️</span>
+          </button>
+        </div>
+
+        <div class="gazette-actions">
+          <button class="action-btn reply-btn" onclick="replyToGazette()">
+            <span class="btn-icon">🎙️</span>
+            <span>Envoyer une réponse vocale</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VUE AIDANTS ET BÉNÉVOLES (TABLEAU DE BORD) -->
+  <main id="view-carer" class="view-section hidden">
+    <div class="dashboard-container">
+      <div class="dashboard-header">
+        <h2>Espace Voisins Solidaires & Aidants</h2>
+        <p>Demandes d'aide à proximité et gestion des accompagnements</p>
+      </div>
+
+      <div class="dashboard-grid">
+        
+        <!-- Colonne Demandes d'entraide -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3>🔔 Demandes d'aide vocales (À proximité)</h3>
+            <span class="badge badge-urgent">2 Nouvelles</span>
+          </div>
+          <div class="request-list">
+            
+            <div class="request-item">
+              <div class="request-user">
+                <span class="user-avatar">👴</span>
+                <div>
+                  <strong>Robert M.</strong> (82 ans) - <em>250m de chez vous</em>
+                  <span class="request-tag tag-bricolage">💡 Bricolage / Ampoule</span>
+                </div>
+              </div>
+              <p class="request-audio-preview">🔊 <em>"J'ai besoin qu'on m'aide à changer l'ampoule du plafond du salon..."</em></p>
+              <div class="request-actions">
+                <button class="dash-btn accept-btn" onclick="alert('Merci ! Vous avez accepté d\'aider Robert. Une notification sécurisée lui a été transmise.')">Prendre en charge</button>
+                <button class="dash-btn call-btn" onclick="alert('Appel de courtoisie engagé.')">📞 Appeler</button>
+              </div>
+            </div>
+
+            <div class="request-item">
+              <div class="request-user">
+                <span class="user-avatar">👵</span>
+                <div>
+                  <strong>Jeanne D.</strong> (78 ans) - <em>400m de chez vous</em>
+                  <span class="request-tag tag-ecrivain">📄 Écrivain Public / Courrier</span>
+                </div>
+              </div>
+              <p class="request-audio-preview">📄 <em>Courrier récapitulatif télécom nécessitant explication d'une facture de résiliation.</em></p>
+              <div class="request-actions">
+                <button class="dash-btn accept-btn" onclick="alert('Merci ! Vous vous êtes porté(e) volontaire pour aider Jeanne.')">Aider pour ce papier</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Colonne Gazette & Messages vocaux -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3>🎙️ Enregistrer une Gazette Vocale</h3>
+          </div>
+          <div class="gazette-creator">
+            <p>Déposez un court message audio (nouvelle du quartier, poème, annonce d'un marché local) pour égayer le quotidien des personnes isolées.</p>
+            <div class="gazette-form">
+              <input type="text" id="gazette-author" placeholder="Votre prénom (ex: Thomas, voisin)" class="dash-input">
+              <button class="dash-btn record-gazette-btn" onclick="alert('Module d\'enregistrement audio activé. Le message sera modéré automatiquement par l\'IA avant diffusion.')">
+                🎙️ Enregistrer un vocal de 1 min
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

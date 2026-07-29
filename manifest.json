@@ -1,0 +1,16 @@
+{
+  "name": "SolidaVoice",
+  "short_name": "SolidaVoice",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "description": "Application d'entraide vocale et d'assistance administrative FALC",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
