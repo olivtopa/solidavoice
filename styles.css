@@ -780,3 +780,75 @@ body {
   background-color: var(--color-gazette);
   color: #ffffff;
 }
+
+/* Module Notifications WhatsApp & SMS */
+.dash-column-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.notification-module-card {
+  border: 2px solid #25d366;
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.badge-whatsapp {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-weight: 800;
+}
+
+.dash-card-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.notification-channels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.channel-toggle-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #ffffff;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+.channel-toggle-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #25d366;
+}
+
+.whatsapp-test-btn {
+  width: 100%;
+  background-color: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+.whatsapp-test-btn:hover {
+  background-color: #1ebe5d;
+}

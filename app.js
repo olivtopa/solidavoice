@@ -308,8 +308,12 @@ function simulateVoiceDictation() {
 }
 
 function confirmSendHelpRequest() {
-  speakText("Votre demande a été envoyée aux 5 bénévoles les plus proches de chez vous. Vous recevrez une réponse rapidement.");
-  alert("Demande envoyée avec succès aux bénévoles géolocalisés !");
+  const reqText = document.getElementById('transcript-text')?.textContent || "Besoin d'aide dans le quartier";
+  sendWhatsAppAlert(`🤝 [SOLIDA VOICE] Nouvelle demande d'aide vocale à proximité : ${reqText}. Cliquez pour intervenir.`);
+  sendTwilioSMSAlert(`SOLIDA VOICE: Nouvelle demande d'aide vocale à proximité : ${reqText}`);
+  
+  speakText("Votre demande a été envoyée aux bénévoles les plus proches de chez vous par WhatsApp et SMS. Vous recevrez une réponse rapidement.");
+  alert("Demande transmise avec succès aux bénévoles via WhatsApp et SMS !");
   closeModule('voisin');
 }
 
@@ -338,7 +342,69 @@ function replyToGazette() {
 
 function triggerSosAudio() {
   speakText("Bouton d'urgence appuyé. Un appel de courtoisie automatique est lancé vers votre bénévole référent.");
-  alert("Alerte de présence lancée. Votre proche aidant / bénévoles référents sont avertis par SMS/Notification.");
+  sendWhatsAppAlert("🚨 URGENCE SOLIDA VOICE : Robert M. a appuyé sur le bouton d'appel rassurant. Merci d'effectuer un appel de courtoisie.", "+33600000000");
+  sendTwilioSMSAlert("URGENCE SOLIDA VOICE: Robert M. demande un appel de présence.", "+33600000000");
+  alert("Alerte de présence lancée. Votre proche aidant et les bénévoles référents sont avertis par WhatsApp et SMS !");
+}
+
+/* ==========================================================================
+   MODULE WHATSAPP & TWILIO SMS NOTIFICATIONS
+   ========================================================================== */
+
+/**
+ * Envoie ou simule une alerte via WhatsApp Business API / Web Link
+ */
+function sendWhatsAppAlert(messageText, targetPhone = "") {
+  console.log("💬 [WhatsApp Alert Triggered]:", messageText);
+  
+  // Encodage pour lien direct WhatsApp Web/Mobile wa.me
+  const encodedText = encodeURIComponent(messageText);
+  const waUrl = targetPhone ? `https://wa.me/${targetPhone}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
+
+  // Log Notification
+  showNotificationToast("💬 Alerte WhatsApp transmise au réseau de bénévoles !");
+  return waUrl;
+}
+
+/**
+ * Envoie ou simule une alerte SMS via Twilio Programmable SMS API
+ */
+function sendTwilioSMSAlert(messageText, targetPhone = "") {
+  console.log("📱 [Twilio SMS Triggered]:", messageText);
+  
+  // simulation Payload Twilio API
+  const twilioPayload = {
+    To: targetPhone || "+33612345678",
+    From: "SolidaVoice",
+    Body: messageText,
+    Timestamp: new Date().toISOString()
+  };
+
+  showNotificationToast("📱 SMS Twilio envoyé aux voisins solidaires à proximité.");
+  return twilioPayload;
+}
+
+function testWhatsAppDirect() {
+  const msg = "🤝 [SolidaVoice Test] Nouvelle demande d'aide à 300m : Robert a besoin d'aide pour changer une ampoule. Cliquez pour répondre.";
+  const url = sendWhatsAppAlert(msg);
+  if (confirm("Voulez-vous ouvrir WhatsApp pour tester l'envoi du message d'alerte prédéfini ?")) {
+    window.open(url, '_blank');
+  }
+}
+
+function showNotificationToast(msgText) {
+  let toast = document.getElementById('notification-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'notification-toast';
+    toast.style.cssText = "position: fixed; bottom: 20px; right: 20px; background: #0f172a; color: #fff; padding: 1rem 1.5rem; border-radius: 12px; border-left: 6px solid #25d366; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; font-weight: 700; font-size: 1.1rem; transition: transform 0.3s ease;";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msgText;
+  toast.style.transform = "translateY(0)";
+  setTimeout(() => {
+    toast.style.transform = "translateY(150px)";
+  }, 4000);
 }
 
 /* ==========================================================================

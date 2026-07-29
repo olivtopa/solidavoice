@@ -75,6 +75,27 @@ CREATE TABLE public.document_decodes (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 6. Module Notifications : Préférences WhatsApp & SMS pour les Bénévoles
+CREATE TABLE public.volunteer_notification_preferences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    volunteer_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    phone_number VARCHAR(20) NOT NULL,
+    receive_whatsapp BOOLEAN DEFAULT TRUE,
+    receive_sms BOOLEAN DEFAULT TRUE,
+    notification_radius_km INT DEFAULT 5,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Historique des notifications envoyées (Logs WhatsApp / Twilio SMS)
+CREATE TABLE public.notification_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    recipient_phone VARCHAR(20) NOT NULL,
+    channel VARCHAR(20) CHECK (channel IN ('whatsapp', 'twilio_sms', 'push')),
+    message_body TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'sent',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Active le Row Level Security (RLS) sur toutes les tables
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.beneficiary_profiles ENABLE ROW LEVEL SECURITY;

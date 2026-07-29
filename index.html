@@ -294,20 +294,52 @@
           </div>
         </div>
 
-        <!-- Colonne Gazette & Messages vocaux -->
-        <div class="dash-card">
-          <div class="dash-card-header">
-            <h3>🎙️ Enregistrer une Gazette Vocale</h3>
+        <!-- Colonne Gazette & Notifications WhatsApp / SMS -->
+        <div class="dash-column-right">
+          
+          <!-- Carte Module Notifications WhatsApp / SMS -->
+          <div class="dash-card notification-module-card">
+            <div class="dash-card-header">
+              <h3>💬 Alertes WhatsApp & Twilio SMS</h3>
+              <span class="badge badge-whatsapp">Direct WhatsApp</span>
+            </div>
+            <p class="dash-card-desc">Recevez instantanément les alertes vocales des personnes isolées sur votre téléphone sans ouvrir l'application.</p>
+            
+            <div class="notification-channels-list">
+              <label class="channel-toggle-item">
+                <input type="checkbox" checked id="toggle-whatsapp">
+                <span class="channel-icon">💬</span>
+                <span class="channel-label">Notifications WhatsApp (API Meta/Twilio)</span>
+              </label>
+
+              <label class="channel-toggle-item">
+                <input type="checkbox" checked id="toggle-sms">
+                <span class="channel-icon">📱</span>
+                <span class="channel-label">Alertes SMS d'urgence (Twilio API)</span>
+              </label>
+            </div>
+
+            <button class="dash-btn whatsapp-test-btn" onclick="testWhatsAppDirect()">
+              <span>💬 Tester une alerte WhatsApp directe</span>
+            </button>
           </div>
-          <div class="gazette-creator">
-            <p>Déposez un court message audio (nouvelle du quartier, poème, annonce d'un marché local) pour égayer le quotidien des personnes isolées.</p>
-            <div class="gazette-form">
-              <input type="text" id="gazette-author" placeholder="Votre prénom (ex: Thomas, voisin)" class="dash-input">
-              <button class="dash-btn record-gazette-btn" onclick="alert('Module d\'enregistrement audio activé. Le message sera modéré automatiquement par l\'IA avant diffusion.')">
-                🎙️ Enregistrer un vocal de 1 min
-              </button>
+
+          <!-- Carte Gazette Vocale -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h3>🎙️ Enregistrer une Gazette Vocale</h3>
+            </div>
+            <div class="gazette-creator">
+              <p>Déposez un court message audio (nouvelle du quartier, poème, annonce d'un marché local) pour égayer le quotidien des personnes isolées.</p>
+              <div class="gazette-form">
+                <input type="text" id="gazette-author" placeholder="Votre prénom (ex: Thomas, voisin)" class="dash-input">
+                <button class="dash-btn record-gazette-btn" onclick="alert('Module d\'enregistrement audio activé. Le message sera modéré automatiquement par l\'IA avant diffusion.')">
+                  🎙️ Enregistrer un vocal de 1 min
+                </button>
+              </div>
             </div>
           </div>
+
         </div>
 
       </div>
