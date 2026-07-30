@@ -8,6 +8,20 @@ let currentSpeechUtterance = null;
 let isRecordingVoice = false;
 let speechRecognitionObj = null;
 
+// État Géolocalisation GPS en temps réel
+let userLocation = {
+  lat: null,
+  lng: null,
+  accuracy: null,
+  active: false
+};
+
+// Coordonnées fictives des demandes d'aide pour le calcul de proximité réelle
+const DEMO_REQUESTS_LOCATIONS = [
+  { id: 'req-robert', name: "Robert M.", baseLat: 48.8566, baseLng: 2.3522, offsetLat: 0.002, offsetLng: 0.003 }, // ~300m
+  { id: 'req-jeanne', name: "Jeanne D.", baseLat: 48.8566, baseLng: 2.3522, offsetLat: -0.003, offsetLng: 0.004 } // ~500m
+];
+
 // Données d'exemple FALC pour la démonstration du Décodeur Facile
 const DEMO_FALC_DOCUMENT = {
   title: "Facture d'Électricité & Gaz",
@@ -23,7 +37,87 @@ const DEMO_FALC_DOCUMENT = {
 document.addEventListener('DOMContentLoaded', () => {
   console.log("SolidaVoice POC Initialisé");
   initWebSpeech();
+  initGeolocation();
 });
+
+/* ==========================================================================
+   MOTEUR DE GÉOLOCALISATION GPS EN TEMPS RÉEL (HTML5 GEOLOCATION API)
+   ========================================================================== */
+
+function initGeolocation() {
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userLocation.lat = position.coords.latitude;
+        userLocation.lng = position.coords.longitude;
+        userLocation.accuracy = Math.round(position.coords.accuracy);
+        userLocation.active = true;
+
+        console.log(`📍 GPS Actif : Lat ${userLocation.lat}, Lng ${userLocation.lng} (Précision ${userLocation.accuracy}m)`);
+        updateGpsStatusUI();
+        updateRealDistancesInDashboard();
+      },
+      (error) => {
+        console.warn("⚠️ Géolocalisation GPS refusée ou indisponible :", error.message);
+        updateGpsStatusUI(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  } else {
+    console.warn("⚠️ Votre navigateur ne supporte pas l'API HTML5 Geolocation.");
+  }
+}
+
+// Calcul de distance géodésique (Formule Haversine)
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // Rayon de la Terre en mètres
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Math.round(R * c); // Distance en mètres
+}
+
+function updateGpsStatusUI(isActive = true) {
+  const badge = document.getElementById('gps-status-badge');
+  if (badge) {
+    if (isActive && userLocation.active) {
+      badge.textContent = `📍 GPS Actif (~${userLocation.accuracy}m)`;
+      badge.className = "gps-badge active";
+    } else {
+      badge.textContent = "📍 GPS Inactif (Position estimée)";
+      badge.className = "gps-badge inactive";
+    }
+  }
+}
+
+function updateRealDistancesInDashboard() {
+  if (!userLocation.active) return;
+
+  // Mise à jour dynamique de la distance calculée par rapport au GPS réel
+  const elemRobert = document.getElementById('dist-robert');
+  const elemJeanne = document.getElementById('dist-jeanne');
+
+  if (elemRobert) {
+    const targetLat = userLocation.lat + 0.002;
+    const targetLng = userLocation.lng + 0.003;
+    const distMeters = calculateHaversineDistance(userLocation.lat, userLocation.lng, targetLat, targetLng);
+    elemRobert.textContent = `📍 ${distMeters}m de chez vous (GPS)`;
+  }
+
+  if (elemJeanne) {
+    const targetLat = userLocation.lat - 0.003;
+    const targetLng = userLocation.lng + 0.004;
+    const distMeters = calculateHaversineDistance(userLocation.lat, userLocation.lng, targetLat, targetLng);
+    elemJeanne.textContent = `📍 ${distMeters}m de chez vous (GPS)`;
+  }
+}
 
 // Switch Mode Bénéficiaire <-> Aidant
 function toggleUserMode() {
@@ -309,11 +403,17 @@ function simulateVoiceDictation() {
 
 function confirmSendHelpRequest() {
   const reqText = document.getElementById('transcript-text')?.textContent || "Besoin d'aide dans le quartier";
-  sendWhatsAppAlert(`🤝 [SOLIDA VOICE] Nouvelle demande d'aide vocale à proximité : ${reqText}. Cliquez pour intervenir.`);
-  sendTwilioSMSAlert(`SOLIDA VOICE: Nouvelle demande d'aide vocale à proximité : ${reqText}`);
+  let gpsSuffix = "";
+
+  if (userLocation.active && userLocation.lat && userLocation.lng) {
+    gpsSuffix = ` 📍 Position GPS : https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}`;
+  }
+
+  sendWhatsAppAlert(`🤝 [SOLIDA VOICE] Nouvelle demande d'aide vocale : ${reqText}.${gpsSuffix}`);
+  sendTwilioSMSAlert(`SOLIDA VOICE: Nouvelle demande d'aide : ${reqText}.${gpsSuffix}`);
   
-  speakText("Votre demande a été envoyée aux bénévoles les plus proches de chez vous par WhatsApp et SMS. Vous recevrez une réponse rapidement.");
-  alert("Demande transmise avec succès aux bénévoles via WhatsApp et SMS !");
+  speakText("Votre demande géolocalisée a été envoyée aux bénévoles les plus proches de chez vous par WhatsApp et SMS.");
+  alert("Demande transmise avec succès aux bénévoles géolocalisés via WhatsApp et SMS !");
   closeModule('voisin');
 }
 

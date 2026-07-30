@@ -248,8 +248,11 @@
   <main id="view-carer" class="view-section hidden">
     <div class="dashboard-container">
       <div class="dashboard-header">
-        <h2>Espace Voisins Solidaires & Aidants</h2>
-        <p>Demandes d'aide à proximité et gestion des accompagnements</p>
+        <div class="dashboard-header-top">
+          <h2>Espace Voisins Solidaires & Aidants</h2>
+          <span id="gps-status-badge" class="gps-badge inactive">📍 Activation GPS en cours...</span>
+        </div>
+        <p>Demandes d'aide géolocalisées à proximité et gestion des accompagnements</p>
       </div>
 
       <div class="dashboard-grid">
@@ -268,7 +271,7 @@
                   <span class="user-avatar">👴</span>
                   <div class="user-meta">
                     <span class="user-name"><strong>Robert M.</strong> (82 ans)</span>
-                    <span class="user-distance">📍 250m de chez vous</span>
+                    <span id="dist-robert" class="user-distance">📍 250m de chez vous</span>
                   </div>
                 </div>
                 <span class="request-tag tag-bricolage">💡 Bricolage / Ampoule</span>
@@ -286,7 +289,7 @@
                   <span class="user-avatar">👵</span>
                   <div class="user-meta">
                     <span class="user-name"><strong>Jeanne D.</strong> (78 ans)</span>
-                    <span class="user-distance">📍 400m de chez vous</span>
+                    <span id="dist-jeanne" class="user-distance">📍 400m de chez vous</span>
                   </div>
                 </div>
                 <span class="request-tag tag-ecrivain">📄 Écrivain Public / Courrier</span>
