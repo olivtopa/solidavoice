@@ -507,6 +507,18 @@ function showNotificationToast(msgText) {
   }, 4000);
 }
 
+/**
+ * Mise à jour dynamique du rayon de filtrage des bénévoles (1 à 20 km)
+ */
+function updateRadiusSetting(radiusKm) {
+  const display = document.getElementById('radius-value-display');
+  if (display) {
+    display.textContent = `${radiusKm} km`;
+  }
+  console.log(`🎯 Rayon d'action bénévole mis à jour : ${radiusKm} km`);
+  showNotificationToast(`🎯 Rayon d'action bénévole réglé sur ${radiusKm} km.`);
+}
+
 /* ==========================================================================
    MOTEUR SYNTHÈSE VOCALE (TEXT-TO-SPEECH)
    ========================================================================== */

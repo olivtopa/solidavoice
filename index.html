@@ -328,6 +328,21 @@
               </label>
             </div>
 
+            <!-- Réglage du Rayon de géolocalisation -->
+            <div class="radius-control-container">
+              <div class="radius-header">
+                <span class="radius-label">🎯 Rayon de filtrage des alertes :</span>
+                <span id="radius-value-display" class="radius-value-badge">5 km</span>
+              </div>
+              <input type="range" id="radius-slider" min="1" max="20" value="5" step="1" class="radius-slider-input" oninput="updateRadiusSetting(this.value)">
+              <div class="radius-ticks">
+                <span>1 km</span>
+                <span>5 km</span>
+                <span>10 km</span>
+                <span>20 km</span>
+              </div>
+            </div>
+
             <button class="dash-btn whatsapp-test-btn" onclick="testWhatsAppDirect()">
               <span>💬 Tester une alerte WhatsApp directe</span>
             </button>
